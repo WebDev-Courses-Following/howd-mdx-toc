@@ -1,11 +1,18 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
-import fs from "fs/promises";
-import matter from "gray-matter";
-import path from "path";
-import React from "react";
+/**
+ * eslint-disable no-await-in-loop
+ *
+ * @format
+ */
 
-const BLOG_POST_DIR_PATH = "/content";
+/* eslint-disable no-restricted-syntax */
+import matter from 'gray-matter';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import React from 'react';
+
+import { extractMdxHeadings } from './heading-helpers';
+
+const BLOG_POST_DIR_PATH = '/content';
 
 export type BlogPostMetadata = {
   title: string;
@@ -16,7 +23,9 @@ export const loadBlogPost = React.cache(async (slug: string) => {
   const rawContent = await readFile(`${BLOG_POST_DIR_PATH}/${slug}.mdx`);
   const { data: frontmatter, content } = matter(rawContent);
 
-  return { frontmatter, content };
+  const headings = extractMdxHeadings(content);
+
+  return { headings, frontmatter, content };
 });
 
 export const getBlogPostList = async () => {
@@ -29,7 +38,7 @@ export const getBlogPostList = async () => {
     const { data: frontmatter } = matter(rawContent);
 
     blogPosts.push({
-      slug: fileName.replace(".mdx", ""),
+      slug: fileName.replace('.mdx', ''),
       title: frontmatter.title,
     });
   }
@@ -38,7 +47,7 @@ export const getBlogPostList = async () => {
 };
 
 function readFile(localPath: string) {
-  return fs.readFile(path.join(process.cwd(), localPath), "utf8");
+  return fs.readFile(path.join(process.cwd(), localPath), 'utf8');
 }
 
 function readDirectory(localPath: string) {
